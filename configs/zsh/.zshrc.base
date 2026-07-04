@@ -1,0 +1,90 @@
+# =============================================================================
+# configs/zsh/.zshrc.base
+# تنظیمات مشترک zsh - لود شده در همه‌ی محیط‌ها
+# Shared zsh settings - loaded in every environment
+# =============================================================================
+
+# ─── تاریخچه / History ───────────────────────────────────────────────────────
+HISTSIZE=10000
+SAVEHIST=10000
+HISTFILE=~/.zsh_history
+setopt HIST_IGNORE_DUPS
+setopt HIST_FIND_NO_DUPS
+setopt HIST_IGNORE_SPACE
+setopt SHARE_HISTORY
+setopt HIST_VERIFY
+
+# ─── PATH مشترک / Shared PATH ────────────────────────────────────────────────
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+# مسیر ابزارهای LSP نصب‌شده با mason.nvim (روی هر دو محیط استفاده می‌شود)
+# Path for LSP tools installed via mason.nvim (used on both environments)
+export PATH="$HOME/.local/share/nvim/mason/bin:$PATH"
+
+# ─── ادیتور پیش‌فرض / Default editor ─────────────────────────────────────────
+export EDITOR="nvim"
+export VISUAL="nvim"
+
+# ─── alias های مشترک / Shared aliases ────────────────────────────────────────
+# فایل و دیسک / Files and disk
+alias ls="eza --icons"
+alias ll="eza -la --icons --git"
+alias lt="eza --tree --icons"
+alias cat="bat"
+alias find="fd"
+alias grep="grep --color=auto"
+alias vim="nvim"
+alias vi="nvim"
+
+# git
+alias gs="git status"
+alias gp="git push"
+alias gl="lazygit"
+alias ga="git add"
+alias gc="git commit"
+alias gd="git diff"
+
+# پایتون / Python
+alias py="python3"
+alias venv="python3 -m venv"
+alias activate="source venv/bin/activate"
+
+# سیستم / System
+alias ..="cd .."
+alias ...="cd ../.."
+alias cls="clear"
+alias c="clear"
+
+# ─── ابزارها / Tools ──────────────────────────────────────────────────────────
+# zoxide
+eval "$(zoxide init zsh)"
+
+# fzf
+source <(fzf --zsh) 2>/dev/null || true
+
+# starship
+eval "$(starship init zsh)"
+
+# تکمیل خودکار / Completion
+autoload -Uz compinit && compinit
+bindkey -e
+bindkey '\e' kill-whole-line
+
+# ─── تابع ya (yazi با cd-on-exit) / ya function (yazi with cd-on-exit) ───────
+function ya() {
+    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+    command yazi "$@" --cwd-file="$tmp"
+    if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+        builtin cd -- "$cwd"
+    fi
+    rm -f -- "$tmp"
+}
+
+# ─── تنظیمات محلی و خصوصی / Local & private overrides ────────────────────────
+# فایل ~/.zshrc.local هرگز بخشی از این ریپو نیست و هرگز نباید کامیت شود؛
+# alias های شخصی مثل SSH به دستگاه‌های دیگر را اینجا بگذارید
+# (به configs/zsh/.zshrc.local.example نگاه کنید)
+#
+# ~/.zshrc.local is never part of this repo and must never be committed;
+# put personal aliases like SSH to other devices here
+# (see configs/zsh/.zshrc.local.example)
+[ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"

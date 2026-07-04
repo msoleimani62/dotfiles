@@ -1,0 +1,5 @@
+# فایل‌های شخصی/خصوصی که هرگز نباید کامیت شوند
+# Personal/private files that must never be committed
+.zshrc.local
+*.backup
+.DS_Store

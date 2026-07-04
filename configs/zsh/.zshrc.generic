@@ -1,0 +1,36 @@
+# =============================================================================
+# configs/zsh/.zshrc.generic
+# تنظیمات پیش‌فرض برای هر توزیع لینوکسی غیر از Kali/Arch
+# Default settings for any Linux distro other than Kali/Arch
+# =============================================================================
+
+# ─── پلاگین‌های zsh (بررسی چند مسیر رایج) ────────────────────────────────────
+# zsh plugins (checks a few common install locations)
+for _p in \
+    /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
+    /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh \
+    /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+do
+    [ -f "$_p" ] && source "$_p" && break
+done
+
+for _p in \
+    /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+    /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+    /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+do
+    [ -f "$_p" ] && source "$_p" && break
+done
+unset _p
+
+# ─── دستور آپدیت بر اساس پکیج‌منیجر موجود ────────────────────────────────────
+# Update command based on whichever package manager is available
+if command -v apt &>/dev/null; then
+    alias update="sudo apt update && sudo apt upgrade"
+elif command -v dnf &>/dev/null; then
+    alias update="sudo dnf upgrade"
+elif command -v zypper &>/dev/null; then
+    alias update="sudo zypper update"
+elif command -v pacman &>/dev/null; then
+    alias update="sudo pacman -Syu"
+fi

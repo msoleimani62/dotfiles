@@ -1,0 +1,19 @@
+# =============================================================================
+# configs/zsh/.zshrc.local.example
+#
+# این یک نمونه است. این فایل را کپی کنید و در مسیر ~/.zshrc.local
+# (نه داخل این ریپو) قرار دهید. .zshrc.base به‌طور خودکار این فایل را
+# در صورت وجود لود می‌کند. این فایل هرگز نباید به گیت اضافه شود.
+#
+# This is a template. Copy this file to ~/.zshrc.local (outside this
+# repo). .zshrc.base automatically loads it if present. This file
+# must never be committed to git.
+# =============================================================================
+
+# نمونه: alias برای SSH به دستگاه‌های دیگر خودتان
+# Example: SSH aliases to your own other devices
+# alias mydevice='ssh -p 22 myusername@192.168.x.x'
+
+# نمونه: توکن یا مسیر اختصاصی خودتان
+# Example: your own private token or path
+# export MY_SECRET_TOKEN="..."

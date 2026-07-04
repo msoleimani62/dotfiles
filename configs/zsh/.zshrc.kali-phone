@@ -1,0 +1,30 @@
+# =============================================================================
+# configs/zsh/.zshrc.kali-phone
+# تنظیمات خاص محیط Kali NetHunter (گوشی) - فقط موارد اضافه بر .zshrc.base
+# Kali NetHunter (phone) specific settings - only items not in .zshrc.base
+# =============================================================================
+
+# ─── پلاگین‌های zsh (مسیر بسته‌ی Debian/Kali) ────────────────────────────────
+# zsh plugins (Debian/Kali package layout)
+[ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ] && \
+    source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+[ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
+    source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# ─── آپدیت سیستم / System update ─────────────────────────────────────────────
+alias update="sudo apt update && sudo apt upgrade"
+
+# ─── استارت خودکار محیط گرافیکی (برای استفاده با KeX/VNC) ────────────────────
+# Auto-start graphical session on tty1 (for use with KeX/VNC)
+if [ -z "$DISPLAY" ] && [ "$XDG_VTNR" = "1" ]; then
+    exec startx
+fi
+
+# ─── دسترسی به deno در صورت نصب بودن (برای yt-dlp) ──────────────────────────
+# deno access if installed (used by yt-dlp's JS runtime requirement)
+[ -f "$HOME/.deno/env" ] && source "$HOME/.deno/env"
+
+# ─── دانلود زیرنویس با yt-dlp / Subtitle downloader via yt-dlp ──────────────
+sub() {
+    yt-dlp --write-auto-subs --sub-lang en --sub-format vtt --skip-download "$1"
+}

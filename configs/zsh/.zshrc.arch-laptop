@@ -1,0 +1,19 @@
+# =============================================================================
+# configs/zsh/.zshrc.arch-laptop
+# تنظیمات خاص محیط Arch Linux (لپ‌تاپ) - فقط موارد اضافه بر .zshrc.base
+# Arch Linux (laptop) specific settings - only items not in .zshrc.base
+# =============================================================================
+
+# ─── پلاگین‌های zsh (مسیر بسته‌ی آرچ) / zsh plugins (Arch package layout) ────
+[ -f /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ] && \
+    source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+[ -f /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
+    source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# ─── آپدیت سیستم / System update ─────────────────────────────────────────────
+alias update="sudo pacman -Syu"
+
+# ─── استارت خودکار محیط گرافیکی روی tty1 / Auto-start graphical session on tty1
+if [ -z "$DISPLAY" ] && [ "$XDG_VTNR" = "1" ]; then
+    exec startx
+fi

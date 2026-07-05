@@ -4,6 +4,9 @@
 # Arch Linux (laptop) specific settings - only items not in .zshrc.base
 # =============================================================================
 
+# ───── لود تنظیمات مشترک / Load shared base config ─────
+[ -f "$HOME/.zshrc.base" ] && source "$HOME/.zshrc.base"
+
 # ─── پلاگین‌های zsh (مسیر بسته‌ی آرچ) / zsh plugins (Arch package layout) ────
 [ -f /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ] && \
     source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh

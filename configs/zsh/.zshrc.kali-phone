@@ -4,6 +4,14 @@
 # Kali NetHunter (phone) specific settings - only items not in .zshrc.base
 # =============================================================================
 
+# لود تنظیمات مشترک
+# Load shared base config
+[ -f "$HOME/.zshrc.base" ] && source "$HOME/.zshrc.base"
+
+# اطمینان از روشن بودن sshd هنگام ورود به شل
+# Ensure sshd is running when entering the shell
+pgrep -x sshd >/dev/null || sudo /usr/sbin/sshd 2>/dev/null
+
 # ─── پلاگین‌های zsh (مسیر بسته‌ی Debian/Kali) ────────────────────────────────
 # zsh plugins (Debian/Kali package layout)
 [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ] && \
@@ -28,3 +36,43 @@ fi
 sub() {
     yt-dlp --write-auto-subs --sub-lang en --sub-format vtt --skip-download "$1"
 }
+alias cat='batcat --paging=never'
+export PATH="/usr/local/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
+
+if [ -f ~/.zsh_aliases ]; then
+    source ~/.zsh_aliases
+fi
+
+typeset -U path PATH
+
+path=(
+    /home/kali/.local/bin
+    /home/kali/.local/share/nvim/mason/bin
+    /home/kali/.cargo/bin
+    /home/kali/.deno/bin
+    $path
+)
+
+export PATH
+
+export STARSHIP_CONFIG="$HOME/.config/starship.toml"
+eval "$(starship init zsh)"
+
+if [ -f /home/kali/.zsh_aliases ]; then
+    source /home/kali/.zsh_aliases
+fi
+export UV_LINK_MODE=copy
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+export PATH="$HOME/.cargo/bin:$PATH"
+export ANDROID_HOME=$HOME/android-sdk
+export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/35.0.0
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64

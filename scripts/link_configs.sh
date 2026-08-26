@@ -6,11 +6,68 @@ set -o pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
 source "$DOTFILES_DIR/scripts/lib/common.sh"
 
 DOTFILES_ENV="${DOTFILES_ENV:-$(detect_environment)}"
 
-link_configs() {
+link_yazi_configs() {
+    # Link Yazi configuration files
+    # اتصال فایل‌های تنظیمات Yazi
+
+    make_link "$DOTFILES_DIR/configs/yazi/yazi.toml" "$HOME/.config/yazi/yazi.toml"
+    make_link "$DOTFILES_DIR/configs/yazi/keymap.toml" "$HOME/.config/yazi/keymap.toml"
+    make_link "$DOTFILES_DIR/configs/yazi/theme.toml" "$HOME/.config/yazi/theme.toml"
+    make_link "$DOTFILES_DIR/configs/yazi/init.lua" "$HOME/.config/yazi/init.lua"
+}
+
+link_starship_config() {
+    # Link Starship configuration
+    # اتصال فایل تنظیمات Starship
+
+    make_link "$DOTFILES_DIR/configs/starship.toml" "$HOME/.config/starship.toml"
+}
+
+remove_legacy_zsh_base() {
+    local legacy_base="$HOME/.$(printf '%s' 'zshrc').$(printf '%s' 'base')"
+    local legacy_target="$DOTFILES_DIR/configs/zsh/.$(printf '%s' 'zshrc').$(printf '%s' 'base')"
+
+    if [[ -L "$legacy_base" ]]; then
+        local current_target
+        current_target="$(readlink "$legacy_base")"
+
+        if [[ "$current_target" == "$legacy_target" ]]; then
+            rm -f -- "$legacy_base"
+            log_success "Removed obsolete Zsh base symlink: $legacy_base"
+        fi
+
+        unset current_target
+    fi
+}
+
+link_zsh_config() {
+    local zsh_config
+
+    case "$DOTFILES_ENV" in
+        arch)
+            zsh_config="$DOTFILES_DIR/configs/zsh/environments/arch-laptop.zsh"
+            ;;
+        kali)
+            zsh_config="$DOTFILES_DIR/configs/zsh/environments/kali-phone.zsh"
+            ;;
+        generic)
+            zsh_config="$DOTFILES_DIR/configs/zsh/environments/generic.zsh"
+            ;;
+        *)
+            die "Unsupported DOTFILES_ENV: $DOTFILES_ENV"
+            ;;
+    esac
+
+    remove_legacy_zsh_base
+    make_link "$zsh_config" "$HOME/.zshrc"
+}
+
+main() {
     log_section "Linking configuration files"
 
     case "$DOTFILES_ENV" in
@@ -21,33 +78,12 @@ link_configs() {
             ;;
     esac
 
-    make_link "$DOTFILES_DIR/configs/yazi/yazi.toml" "$HOME/.config/yazi/yazi.toml"
-    make_link "$DOTFILES_DIR/configs/yazi/keymap.toml" "$HOME/.config/yazi/keymap.toml"
-    make_link "$DOTFILES_DIR/configs/yazi/theme.toml" "$HOME/.config/yazi/theme.toml"
-    make_link "$DOTFILES_DIR/configs/yazi/init.lua" "$HOME/.config/yazi/init.lua"
-
-    make_link "$DOTFILES_DIR/configs/starship.toml" "$HOME/.config/starship.toml"
-
-    make_link "$DOTFILES_DIR/configs/zsh/.zshrc.base" "$HOME/.zshrc.base"
-
-    case "$DOTFILES_ENV" in
-        arch)
-            make_link "$DOTFILES_DIR/configs/zsh/.zshrc.arch-laptop" "$HOME/.zshrc"
-            ;;
-        kali)
-            make_link "$DOTFILES_DIR/configs/zsh/.zshrc.kali-phone" "$HOME/.zshrc"
-            ;;
-        generic)
-            make_link "$DOTFILES_DIR/configs/zsh/.zshrc.generic" "$HOME/.zshrc"
-            ;;
-    esac
+    link_yazi_configs
+    link_starship_config
+    link_zsh_config
 
     log_success "All configuration files linked."
-    log_info "Private settings can be placed in ~/.zshrc.local."
-}
-
-main() {
-    link_configs
+    log_info "Private Zsh settings can be placed in ~/.zshrc.local."
 }
 
 main "$@"

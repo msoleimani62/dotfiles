@@ -10,8 +10,20 @@ source "$DOTFILES_DIR/scripts/lib/common.sh"
 
 BIN_DIR="$HOME/.local/bin"
 ARCH="$(detect_arch)"
+TMP_DIRS=()
 
 mkdir -p "$BIN_DIR"
+
+cleanup() {
+    local tmp_dir
+
+    for tmp_dir in "${TMP_DIRS[@]}"; do
+        [[ -n "$tmp_dir" && -d "$tmp_dir" ]] || continue
+        rm -rf -- "$tmp_dir"
+    done
+}
+
+trap cleanup EXIT
 
 require_commands curl tar unzip grep sed head find mktemp
 
@@ -69,6 +81,7 @@ install_yazi() {
     fi
 
     tmp_dir="$(mktemp -d)"
+    TMP_DIRS+=("$tmp_dir")
     archive="$tmp_dir/yazi.zip"
 
     download_file \
@@ -84,7 +97,6 @@ install_yazi() {
     atomic_install_file "$extracted_dir/yazi" "$BIN_DIR/yazi"
     atomic_install_file "$extracted_dir/ya" "$BIN_DIR/ya"
 
-    rm -rf -- "$tmp_dir"
 
     log_success "yazi $version installed."
 }
@@ -117,6 +129,7 @@ install_lazygit() {
     fi
 
     tmp_dir="$(mktemp -d)"
+    TMP_DIRS+=("$tmp_dir")
     archive="$tmp_dir/lazygit.tar.gz"
 
     download_file \
@@ -126,7 +139,6 @@ install_lazygit() {
     tar -xzf "$archive" -C "$tmp_dir" lazygit
     atomic_install_file "$tmp_dir/lazygit" "$BIN_DIR/lazygit"
 
-    rm -rf -- "$tmp_dir"
 
     log_success "lazygit $version installed."
 }
@@ -159,6 +171,7 @@ install_zoxide() {
     fi
 
     tmp_dir="$(mktemp -d)"
+    TMP_DIRS+=("$tmp_dir")
     archive="$tmp_dir/zoxide.tar.gz"
 
     download_file \
@@ -169,7 +182,6 @@ install_zoxide() {
 
     atomic_install_file "$tmp_dir/zoxide" "$BIN_DIR/zoxide"
 
-    rm -rf -- "$tmp_dir"
 
     log_success "zoxide $version installed."
 }
@@ -202,6 +214,7 @@ install_fzf() {
     fi
 
     tmp_dir="$(mktemp -d)"
+    TMP_DIRS+=("$tmp_dir")
     archive="$tmp_dir/fzf.tar.gz"
 
     download_file \
@@ -211,7 +224,6 @@ install_fzf() {
     tar -xzf "$archive" -C "$tmp_dir"
     atomic_install_file "$tmp_dir/fzf" "$BIN_DIR/fzf"
 
-    rm -rf -- "$tmp_dir"
 
     log_success "fzf $version installed."
 }
@@ -244,6 +256,7 @@ install_starship() {
     fi
 
     tmp_dir="$(mktemp -d)"
+    TMP_DIRS+=("$tmp_dir")
     archive="$tmp_dir/starship.tar.gz"
 
     download_file \
@@ -253,7 +266,6 @@ install_starship() {
     tar -xzf "$archive" -C "$tmp_dir"
     atomic_install_file "$tmp_dir/starship" "$BIN_DIR/starship"
 
-    rm -rf -- "$tmp_dir"
 
     log_success "starship $version installed."
 }

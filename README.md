@@ -78,7 +78,7 @@ This repo contains terminal environment dotfiles installable across three enviro
 |---|---|---|
 | yazi | `~/.config/yazi/` | فایل‌منیجر با تم Catppuccin Mocha / File manager, Catppuccin Mocha theme |
 | starship | `~/.config/starship.toml` | پرامپت با تم Catppuccin Powerline / Prompt, Catppuccin Powerline theme |
-| zsh | `~/.zshrc` + `~/.zshrc.base` | تنظیمات شل (مشترک + خاص محیط) / Shell config (shared + environment-specific) |
+| zsh | `~/.zshrc` | ورودی Zsh مخصوص محیط که ماژول‌های مشترک را بارگذاری می‌کند / Environment-specific Zsh entrypoint loading shared modules |
 | زخصوصی / private | `~/.zshrc.local` (اختیاری / optional) | تنظیمات شخصی، هرگز کامیت نمی‌شود / Personal settings, never committed |
 
 ---
@@ -161,8 +161,8 @@ cp configs/zsh/.zshrc.local.example ~/.zshrc.local
 nvim ~/.zshrc.local
 ```
 
-`~/.zshrc.local` به‌طور خودکار توسط `.zshrc.base` لود می‌شود و هرگز بخشی از این ریپو نیست.
-`~/.zshrc.local` is automatically loaded by `.zshrc.base` and is never part of this repo.
+`~/.zshrc.local` به‌طور خودکار توسط ماژول `50-local.zsh` لود می‌شود و هرگز بخشی از این ریپو نیست.
+`~/.zshrc.local` is automatically loaded by the `50-local.zsh` module and is never part of this repo.
 
 ---
 
@@ -193,11 +193,20 @@ dotfiles/
 │   │   └── init.lua
 │   ├── starship.toml               ← کانفیگ starship (مشترک) / starship config (shared)
 │   └── zsh/
-│       ├── .zshrc.base             ← تنظیمات مشترک / Shared settings
-│       ├── .zshrc.kali-phone       ← خاص گوشی / Phone-specific
-│       ├── .zshrc.arch-laptop      ← خاص لپ‌تاپ / Laptop-specific
-│       ├── .zshrc.generic          ← خاص سایر توزیع‌ها / Other-distro-specific
-│       └── .zshrc.local.example    ← نمونه‌ی تنظیمات خصوصی / Private settings template
+│       ├── environments/
+│       │   ├── kali-phone.zsh       ← ورودی Kali / Kali entrypoint
+│       │   ├── arch-laptop.zsh      ← ورودی Arch / Arch entrypoint
+│       │   └── generic.zsh          ← ورودی عمومی / Generic entrypoint
+│       ├── modules/
+│       │   ├── 00-core.zsh          ← هسته مشترک / Shared core
+│       │   ├── 10-path.zsh          ← مدیریت PATH / PATH management
+│       │   ├── 20-completion.zsh    ← تکمیل دستورات / Completion
+│       │   ├── 30-tools.zsh         ← ابزارها / Tools
+│       │   ├── 40-aliases.zsh       ← aliasها / Aliases
+│       │   ├── 50-local.zsh         ← تنظیمات خصوصی / Private settings
+│       │   ├── 90-plugins.zsh       ← پلاگین‌ها / Plugins
+│       │   └── loader.zsh            ← بارگذار ماژول‌ها / Module loader
+│       └── .zshrc.local.example     ← نمونه تنظیمات خصوصی / Private settings template
 │
 └── scripts/
     ├── install_binaries.sh         ← دانلود باینری از GitHub / GitHub binary downloads

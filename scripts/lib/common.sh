@@ -26,7 +26,7 @@ log_error() {
 
 log_section() {
     printf '\n%b\n' "${BOLD}${BLUE}════════════════════════════════════════════════════════════${RESET}"
-    printf '%b\n' "${BOLD}${BLUE}  %s${RESET}" "$*"
+    printf '%b%s\n' "${BOLD}${BLUE}  ${RESET}" "$*"
     printf '%b\n\n' "${BOLD}${BLUE}════════════════════════════════════════════════════════════${RESET}"
 }
 

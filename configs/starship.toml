@@ -4,7 +4,7 @@
 # starship prompt config with Catppuccin Mocha theme (no personal data)
 # =============================================================================
 
-scan_timeout = 10
+scan_timeout = 100
 
 "$schema" = 'https://starship.rs/config-schema.json'
 
@@ -293,4 +293,3 @@ mantle = "#1e2030"
 crust = "#181926"
 
 [custom]
-scan_timeout = 10

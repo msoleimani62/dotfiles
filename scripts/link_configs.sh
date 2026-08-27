@@ -19,6 +19,7 @@ link_yazi_configs() {
     make_link "$DOTFILES_DIR/configs/yazi/keymap.toml" "$HOME/.config/yazi/keymap.toml"
     make_link "$DOTFILES_DIR/configs/yazi/theme.toml" "$HOME/.config/yazi/theme.toml"
     make_link "$DOTFILES_DIR/configs/yazi/init.lua" "$HOME/.config/yazi/init.lua"
+    make_link "$DOTFILES_DIR/configs/yazi/package.toml" "$HOME/.config/yazi/package.toml"
 }
 
 link_starship_config() {

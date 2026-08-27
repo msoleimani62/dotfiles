@@ -18,6 +18,11 @@ fi
 
 if command -v yazi >/dev/null 2>&1; then
     function ya() {
+        if [[ $# -gt 0 && "$1" == "pkg" ]]; then
+            command "$HOME/.local/bin/ya" "$@"
+            return $?
+        fi
+
         local tmp
         local cwd
 

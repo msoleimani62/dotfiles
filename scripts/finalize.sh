@@ -15,7 +15,7 @@ configure_shell() {
     zsh_path="$(command -v zsh || true)"
 
     if [ -z "$zsh_path" ]; then
-        log_warn "zsh is not installed; skipping default shell configuration."
+        log_warn "zsh is not installed; skipping shell configuration."
         return 0
     fi
 
@@ -26,12 +26,8 @@ configure_shell() {
         return 0
     fi
 
-    if chsh -s "$zsh_path"; then
-        log_success "Default login shell changed to zsh."
-    else
-        log_warn "Unable to change the default shell automatically."
-        log_warn "Run manually: chsh -s $zsh_path"
-    fi
+    log_warn "Default login shell is not zsh."
+    log_info "Run manually if desired: chsh -s $zsh_path"
 }
 
 update_yazi_plugins() {

@@ -29,8 +29,11 @@ link_starship_config() {
 }
 
 remove_legacy_zsh_base() {
-    local legacy_base="$HOME/.$(printf '%s' 'zshrc').$(printf '%s' 'base')"
-    local legacy_target="$DOTFILES_DIR/configs/zsh/.$(printf '%s' 'zshrc').$(printf '%s' 'base')"
+    local legacy_base
+    local legacy_target
+
+    legacy_base="$HOME/.zshrc.base"
+    legacy_target="$DOTFILES_DIR/configs/zsh/.zshrc.base"
 
     if [[ -L "$legacy_base" ]]; then
         local current_target

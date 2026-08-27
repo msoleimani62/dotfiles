@@ -10,23 +10,9 @@ source "$ZSH_ENV_DIR/../modules/loader.zsh"
 
 unset ZSH_ENV_FILE ZSH_ENV_DIR
 
-# Start SSH daemon when entering an interactive Kali shell
-# اجرای sshd هنگام ورود به شل تعاملی Kali
-if command -v pgrep >/dev/null 2>&1 && command -v sudo >/dev/null 2>&1; then
-    if ! pgrep -x sshd >/dev/null 2>&1; then
-        sudo /usr/sbin/sshd 2>/dev/null || true
-    fi
-fi
-
 # Define Kali package management shortcut
 # تعریف میانبر مدیریت بسته‌های Kali
 alias update="sudo apt update && sudo apt upgrade"
-
-# Start X automatically on tty1 when no graphical session exists
-# اجرای خودکار X روی tty1 در صورت نبود محیط گرافیکی
-if [[ -z ${DISPLAY:-} && ${XDG_VTNR:-} == 1 && -x /usr/bin/startx ]]; then
-    exec startx
-fi
 
 # Load Deno environment when available
 # بارگذاری محیط Deno در صورت وجود

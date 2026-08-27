@@ -3,27 +3,18 @@
 # پلاگین‌های Zsh مستقل از توزیع لینوکس
 # =============================================================================
 
-zsh_load_first_existing() {
-    local candidate
+if [[ -r /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+    source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+elif [[ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+    source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+elif [[ -r /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+    source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+fi
 
-    for candidate in "$@"; do
-        if [[ -f "$candidate" ]]; then
-            source "$candidate"
-            return 0
-        fi
-    done
-
-    return 1
-}
-
-zsh_load_first_existing \
-    /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
-    /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh \
-    /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-zsh_load_first_existing \
-    /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
-    /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
-    /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-unset -f zsh_load_first_existing
+if [[ -r /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+    source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+elif [[ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+    source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+elif [[ -r /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+    source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi

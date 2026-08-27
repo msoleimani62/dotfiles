@@ -29,26 +29,6 @@ link_starship_config() {
     make_link "$DOTFILES_DIR/configs/starship.toml" "$HOME/.config/starship.toml"
 }
 
-remove_legacy_zsh_base() {
-    local legacy_base
-    local legacy_target
-
-    legacy_base="$HOME/.zshrc.base"
-    legacy_target="$DOTFILES_DIR/configs/zsh/.zshrc.base"
-
-    if [[ -L "$legacy_base" ]]; then
-        local current_target
-        current_target="$(readlink "$legacy_base")"
-
-        if [[ "$current_target" == "$legacy_target" ]]; then
-            rm -f -- "$legacy_base"
-            log_success "Removed obsolete Zsh base symlink: $legacy_base"
-        fi
-
-        unset current_target
-    fi
-}
-
 link_zsh_config() {
     local zsh_config
 
@@ -67,7 +47,6 @@ link_zsh_config() {
             ;;
     esac
 
-    remove_legacy_zsh_base
     make_link "$zsh_config" "$HOME/.zshrc"
 }
 

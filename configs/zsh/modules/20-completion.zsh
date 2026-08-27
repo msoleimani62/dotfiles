@@ -4,7 +4,6 @@
 # =============================================================================
 
 autoload -Uz compinit
-autoload -Uz add-zsh-hook
 
 XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 ZSH_COMPDUMP_DIR="$XDG_CACHE_HOME/zsh"
@@ -13,7 +12,9 @@ if [[ ! -d "$ZSH_COMPDUMP_DIR" ]]; then
     mkdir -p "$ZSH_COMPDUMP_DIR"
 fi
 
-compinit -C -d "$ZSH_COMPDUMP_DIR/zcompdump-${ZSH_VERSION}"
+ZSH_COMPDUMP="$ZSH_COMPDUMP_DIR/zcompdump-${ZSH_VERSION}"
+
+compinit -C -d "$ZSH_COMPDUMP"
 
 bindkey -e
 bindkey '\e' kill-whole-line

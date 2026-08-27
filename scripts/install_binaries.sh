@@ -6,13 +6,14 @@ set -o pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
 source "$DOTFILES_DIR/scripts/lib/common.sh"
 
-BIN_DIR="$HOME/.local/bin"
+BIN_DIR="${HOME}/.local/bin"
 ARCH="$(detect_arch)"
 TMP_DIRS=()
 
-mkdir -p "$BIN_DIR"
+mkdir -p -- "$BIN_DIR"
 
 cleanup() {
     local tmp_dir
@@ -25,31 +26,43 @@ cleanup() {
 
 trap cleanup EXIT
 
-require_commands curl tar unzip grep sed head find mktemp
+require_commands curl tar unzip jq mktemp
 
 get_latest_version() {
     local repo="$1"
-    local version
 
-    version="$(
-        curl -fsSL \
-            -H 'Accept: application/vnd.github+json' \
-            -H 'X-GitHub-Api-Version: 2022-11-28' \
-            "https://api.github.com/repos/$repo/releases/latest" |
-            sed -n 's/^[[:space:]]*"tag_name":[[:space:]]*"v\{0,1\}\([^"]*\)".*/\1/p' |
-            head -n1
-    )"
-
-    [ -n "$version" ] || return 1
-
-    printf '%s\n' "$version"
+    curl -fsSL \
+        --retry 3 \
+        --retry-delay 2 \
+        --connect-timeout 15 \
+        --max-time 60 \
+        -H 'Accept: application/vnd.github+json' \
+        -H 'X-GitHub-Api-Version: 2022-11-28' \
+        "https://api.github.com/repos/$repo/releases/latest" |
+        jq -er '.tag_name | ltrimstr("v")'
 }
 
 download_file() {
     local url="$1"
     local output="$2"
 
-    curl -fL --retry 3 --retry-delay 2 --connect-timeout 15 --output "$output" "$url"
+    curl -fL \
+        --retry 3 \
+        --retry-delay 2 \
+        --connect-timeout 15 \
+        --max-time 300 \
+        --output "$output" \
+        "$url"
+}
+
+verify_binary() {
+    local binary="$1"
+
+    [[ -x "$binary" ]] ||
+        die "Installed binary is missing or not executable: $binary"
+
+    "$binary" --version >/dev/null 2>&1 ||
+        die "Installed binary failed verification: $binary"
 }
 
 install_yazi() {
@@ -59,7 +72,8 @@ install_yazi() {
     local extracted_dir
     local binary_arch
 
-    version="$(get_latest_version 'sxyazi/yazi')" || die "Unable to determine yazi version."
+    version="$(get_latest_version 'sxyazi/yazi')" ||
+        die "Unable to determine yazi version."
 
     case "$ARCH" in
         x86_64)
@@ -74,10 +88,11 @@ install_yazi() {
             ;;
     esac
 
-    if [ -x "$BIN_DIR/yazi" ] &&
-        "$BIN_DIR/yazi" --version 2>/dev/null | grep -q "Version: $version"; then
-        log_success "yazi $version is already installed."
-        return 0
+    if [[ -x "$BIN_DIR/yazi" && -x "$BIN_DIR/ya" ]]; then
+        if "$BIN_DIR/yazi" --version 2>/dev/null | grep -q "$version"; then
+            log_success "yazi $version is already installed."
+            return 0
+        fi
     fi
 
     tmp_dir="$(mktemp -d)"
@@ -90,13 +105,23 @@ install_yazi() {
 
     unzip -q "$archive" -d "$tmp_dir"
 
-    extracted_dir="$(find "$tmp_dir" -mindepth 1 -maxdepth 1 -type d -name 'yazi-*' -print -quit)"
+    extracted_dir="$(
+        find "$tmp_dir" \
+            -mindepth 1 \
+            -maxdepth 1 \
+            -type d \
+            -name 'yazi-*' \
+            -print -quit
+    )"
 
-    [ -n "$extracted_dir" ] || die "Unable to locate extracted yazi directory."
+    [[ -n "$extracted_dir" ]] ||
+        die "Unable to locate extracted yazi directory."
 
     atomic_install_file "$extracted_dir/yazi" "$BIN_DIR/yazi"
     atomic_install_file "$extracted_dir/ya" "$BIN_DIR/ya"
 
+    verify_binary "$BIN_DIR/yazi"
+    verify_binary "$BIN_DIR/ya"
 
     log_success "yazi $version installed."
 }
@@ -107,7 +132,8 @@ install_lazygit() {
     local tmp_dir
     local arch_label
 
-    version="$(get_latest_version 'jesseduffield/lazygit')" || die "Unable to determine lazygit version."
+    version="$(get_latest_version 'jesseduffield/lazygit')" ||
+        die "Unable to determine lazygit version."
 
     case "$ARCH" in
         x86_64)
@@ -122,8 +148,8 @@ install_lazygit() {
             ;;
     esac
 
-    if [ -x "$BIN_DIR/lazygit" ] &&
-        "$BIN_DIR/lazygit" --version 2>/dev/null | grep -q "version=$version"; then
+    if [[ -x "$BIN_DIR/lazygit" ]] &&
+        "$BIN_DIR/lazygit" --version 2>/dev/null | grep -q "$version"; then
         log_success "lazygit $version is already installed."
         return 0
     fi
@@ -137,8 +163,9 @@ install_lazygit() {
         "$archive"
 
     tar -xzf "$archive" -C "$tmp_dir" lazygit
-    atomic_install_file "$tmp_dir/lazygit" "$BIN_DIR/lazygit"
 
+    atomic_install_file "$tmp_dir/lazygit" "$BIN_DIR/lazygit"
+    verify_binary "$BIN_DIR/lazygit"
 
     log_success "lazygit $version installed."
 }
@@ -149,7 +176,8 @@ install_zoxide() {
     local tmp_dir
     local arch_label
 
-    version="$(get_latest_version 'ajeetdsouza/zoxide')" || die "Unable to determine zoxide version."
+    version="$(get_latest_version 'ajeetdsouza/zoxide')" ||
+        die "Unable to determine zoxide version."
 
     case "$ARCH" in
         x86_64)
@@ -164,7 +192,7 @@ install_zoxide() {
             ;;
     esac
 
-    if [ -x "$BIN_DIR/zoxide" ] &&
+    if [[ -x "$BIN_DIR/zoxide" ]] &&
         "$BIN_DIR/zoxide" --version 2>/dev/null | grep -q "$version"; then
         log_success "zoxide $version is already installed."
         return 0
@@ -181,7 +209,7 @@ install_zoxide() {
     tar -xzf "$archive" -C "$tmp_dir"
 
     atomic_install_file "$tmp_dir/zoxide" "$BIN_DIR/zoxide"
-
+    verify_binary "$BIN_DIR/zoxide"
 
     log_success "zoxide $version installed."
 }
@@ -192,7 +220,8 @@ install_fzf() {
     local tmp_dir
     local arch_label
 
-    version="$(get_latest_version 'junegunn/fzf')" || die "Unable to determine fzf version."
+    version="$(get_latest_version 'junegunn/fzf')" ||
+        die "Unable to determine fzf version."
 
     case "$ARCH" in
         x86_64)
@@ -207,7 +236,7 @@ install_fzf() {
             ;;
     esac
 
-    if [ -x "$BIN_DIR/fzf" ] &&
+    if [[ -x "$BIN_DIR/fzf" ]] &&
         "$BIN_DIR/fzf" --version 2>/dev/null | grep -q "^${version}"; then
         log_success "fzf $version is already installed."
         return 0
@@ -222,8 +251,9 @@ install_fzf() {
         "$archive"
 
     tar -xzf "$archive" -C "$tmp_dir"
-    atomic_install_file "$tmp_dir/fzf" "$BIN_DIR/fzf"
 
+    atomic_install_file "$tmp_dir/fzf" "$BIN_DIR/fzf"
+    verify_binary "$BIN_DIR/fzf"
 
     log_success "fzf $version installed."
 }
@@ -234,7 +264,8 @@ install_starship() {
     local tmp_dir
     local arch_label
 
-    version="$(get_latest_version 'starship/starship')" || die "Unable to determine starship version."
+    version="$(get_latest_version 'starship/starship')" ||
+        die "Unable to determine starship version."
 
     case "$ARCH" in
         x86_64)
@@ -249,7 +280,7 @@ install_starship() {
             ;;
     esac
 
-    if [ -x "$BIN_DIR/starship" ] &&
+    if [[ -x "$BIN_DIR/starship" ]] &&
         "$BIN_DIR/starship" --version 2>/dev/null | grep -q "^starship ${version}"; then
         log_success "starship $version is already installed."
         return 0
@@ -264,8 +295,9 @@ install_starship() {
         "$archive"
 
     tar -xzf "$archive" -C "$tmp_dir"
-    atomic_install_file "$tmp_dir/starship" "$BIN_DIR/starship"
 
+    atomic_install_file "$tmp_dir/starship" "$BIN_DIR/starship"
+    verify_binary "$BIN_DIR/starship"
 
     log_success "starship $version installed."
 }

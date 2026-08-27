@@ -1,7 +1,4 @@
-# =============================================================================
 # Shared executable search path
-# مدیریت مشترک مسیرهای اجرایی
-# =============================================================================
 
 typeset -U path PATH
 
@@ -10,7 +7,7 @@ zsh_path_prepend() {
 
     for dir in "$@"; do
         [[ -d "$dir" ]] || continue
-        path=("$dir" $path)
+        path=("$dir" "${path[@]}")
     done
 }
 
@@ -19,7 +16,7 @@ zsh_path_append() {
 
     for dir in "$@"; do
         [[ -d "$dir" ]] || continue
-        path=($path "$dir")
+        path+=("$dir")
     done
 }
 

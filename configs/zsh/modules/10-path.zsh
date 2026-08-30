@@ -26,7 +26,7 @@ zsh_path_append() {
 }
 
 zsh_path_remove() {
-    local dir target
+    local target dir
     local -a filtered
 
     for target in "$@"; do
@@ -52,11 +52,44 @@ zsh_path_normalize() {
     for dir in "${path[@]}"; do
         [[ -n "$dir" ]] || continue
         [[ -n "${seen[$dir]:-}" ]] && continue
+
         seen[$dir]=1
         normalized+=("$dir")
     done
 
     path=("${normalized[@]}")
+}
+
+zsh_path_latest_versioned_dir() {
+    local pattern="$1"
+    local prefix="$2"
+    local dir
+    local version
+    local candidate
+    local best_version=""
+    local best_dir=""
+
+    autoload -Uz is-at-least
+
+    for dir in ${~pattern}(N); do
+        candidate="${dir:t}"
+        version="${candidate#"$prefix"}"
+
+        if [[ "$version" != <->(|.<->|.<->) ]]; then
+            continue
+        fi
+
+        if [[ -z "$best_version" ]] || is-at-least "$version" "$best_version"; then
+            best_version="$version"
+            best_dir="$dir"
+        fi
+    done
+
+    if [[ -n "$best_dir" ]]; then
+        print -r -- "$best_dir"
+    fi
+
+    unfunction is-at-least 2>/dev/null || true
 }
 
 zsh_path_prepend \

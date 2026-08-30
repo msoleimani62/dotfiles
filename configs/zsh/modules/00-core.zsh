@@ -16,4 +16,4 @@ setopt HIST_VERIFY
 export EDITOR="${EDITOR:-nvim}"
 export VISUAL="${VISUAL:-$EDITOR}"
 
-typeset -U path PATH
+typeset -gU path PATH

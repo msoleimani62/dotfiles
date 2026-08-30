@@ -1,6 +1,6 @@
 # Shared executable search path
 
-typeset -U path PATH
+typeset -gU path PATH
 
 zsh_path_prepend() {
     local dir

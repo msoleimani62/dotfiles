@@ -25,11 +25,15 @@ done
 
 write_version() {
     local version_dir
+    local temp_file
 
     version_dir="$(dirname "$VERSION_FILE")"
     mkdir -p "$version_dir"
 
-    printf '%s\n' "$DOTFILES_VERSION" > "$VERSION_FILE"
+    temp_file="$(mktemp "$version_dir/.version.XXXXXX")"
+    printf '%s\n' "$DOTFILES_VERSION" > "$temp_file"
+    chmod 0644 "$temp_file"
+    mv -f -- "$temp_file" "$VERSION_FILE"
 }
 
 main() {
@@ -38,19 +42,23 @@ main() {
 
     log_section "dotfiles installer"
 
-    if [ -f "$VERSION_FILE" ] && [ "$FORCE" -ne 1 ]; then
-        installed_version="$(cat "$VERSION_FILE")"
-
-        if [ "$installed_version" = "$DOTFILES_VERSION" ]; then
-            log_success "Already up to date: $installed_version"
-            log_info "Run 'bash install.sh --force' to force a full reinstall."
-            exit 0
-        fi
+    if [[ -f "$VERSION_FILE" ]]; then
+        installed_version="$(<"$VERSION_FILE")"
 
         log_info "Installed version: $installed_version"
         log_info "Target version: $DOTFILES_VERSION"
-    elif [ "$FORCE" -eq 1 ]; then
-        log_info "Forced installation requested."
+
+        if [[ "$installed_version" == "$DOTFILES_VERSION" && "$FORCE" -eq 0 ]]; then
+            log_success "Already up to date: $installed_version"
+            log_info "Run 'bash install.sh --force' to force a reinstall."
+            exit 0
+        fi
+
+        if [[ "$FORCE" -eq 1 ]]; then
+            log_info "Forced installation requested."
+        else
+            log_info "Version change detected; proceeding with installation."
+        fi
     else
         log_info "No previous installation detected."
     fi

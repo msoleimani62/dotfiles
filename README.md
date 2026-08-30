@@ -131,26 +131,22 @@ bash install.sh
 
 ## 🔁 رفتار نصب و آپدیت / Install & Update Behavior
 
-اسکریپت نصب، نسخه‌ی خودش را در فایلی بیرون از ریپو ذخیره می‌کند (`~/.local/share/dotfiles/.version`)، دقیقاً مثل پروژه‌ی `open-downloader-cli`:
-The installer stores its own version in a file outside the repo (`~/.local/share/dotfiles/.version`), just like the `open-downloader-cli` project:
+اسکریپت نصب، نسخه‌ی نصب‌شده را در فایلی بیرون از ریپو ذخیره می‌کند (`~/.local/share/dotfiles/.version`):
+The installer stores the installed version in a file outside the repository (`~/.local/share/dotfiles/.version`):
 
-- اگر نسخه‌ی نصب‌شده با نسخه‌ی فعلی اسکریپت یکی باشد → فقط پیام «قبلاً نصب شده» نشان داده می‌شود و **هیچ `apt update`/`pacman -Syu` دوباره اجرا نمی‌شود**
-  If the installed version matches the current script version → it just reports "already installed" and **no `apt update`/`pacman -Syu` runs again**
+- در هر اجرای `bash install.sh`، محیط دوباره تشخیص داده می‌شود و installer مربوط به آن اجرا می‌شود.
+  Every `bash install.sh` invocation detects the environment again and runs the matching installer.
 
-- اگر نسخه‌ی نصب‌شده قدیمی‌تر باشد → نصب کامل دوباره اجرا می‌شود
-  If the installed version is older → the full install runs again
+- نسخه‌ی نصب‌شده و نسخه‌ی هدف فقط برای گزارش وضعیت نگهداری می‌شوند و باعث skip کردن نصب نمی‌شوند.
+  The installed and target versions are informational and do not cause the installation to be skipped.
 
-- برای اجرای کامل و اجباری حتی روی نسخه‌ی یکسان (مثلاً برای تست):
-  To force a full run even on a matching version (e.g. for testing):
-  ```bash
-  bash install.sh --force
-  ```
+- اجرای دوباره‌ی installer برای اعمال تغییرات جدید، اصلاح configurationها و اطمینان از idempotent بودن مراحل نصب مجاز و مورد انتظار است.
+  Re-running the installer is supported and expected when applying configuration changes or validating installer idempotency.
 
-> این فایل نسخه هرگز داخل ریپو نیست، پس هیچ‌وقت باعث تغییر غیرمنتظره در `git status` نمی‌شود.
-> This version file is never inside the repo, so it never causes unexpected changes in `git status`.
+- فایل version هرگز داخل ریپو نیست و بنابراین باعث تغییر در `git status` نمی‌شود.
+  The version file is never stored inside the repository, so it does not affect `git status`.
 
 ---
-
 ## 🔒 تنظیمات شخصی و خصوصی / Personal & Private Settings
 
 هیچ IP، یوزرنیم یا اطلاعات شبکه‌ی خصوصی در این ریپو وجود ندارد. برای alias های شخصی (مثل SSH به دستگاه‌های دیگر خودتان):

@@ -1,5 +1,3 @@
-# Zsh module loader
-
 if [[ -n "${DOTFILES_ZSH_LOADED:-}" ]]; then
     return 0
 fi
@@ -11,40 +9,29 @@ fi
 typeset -g DOTFILES_ZSH_LOADING=1
 typeset -g ZSH_MODULE_DIR="${${(%):-%N}:A:h}"
 
-source "$ZSH_MODULE_DIR/00-core.zsh" || {
-    unset DOTFILES_ZSH_LOADING ZSH_MODULE_DIR
-    return 1
+_dotfiles_load_modules() {
+    local module_file
+    local -a module_files=(
+        00-core.zsh
+        10-path.zsh
+        20-completion.zsh
+        30-tools.zsh
+        40-aliases.zsh
+        50-local.zsh
+        90-plugins.zsh
+    )
+
+    for module_file in "${module_files[@]}"; do
+        source "$ZSH_MODULE_DIR/$module_file" || return 1
+    done
 }
 
-source "$ZSH_MODULE_DIR/10-path.zsh" || {
+if ! _dotfiles_load_modules; then
+    unset -f _dotfiles_load_modules
     unset DOTFILES_ZSH_LOADING ZSH_MODULE_DIR
     return 1
-}
+fi
 
-source "$ZSH_MODULE_DIR/20-completion.zsh" || {
-    unset DOTFILES_ZSH_LOADING ZSH_MODULE_DIR
-    return 1
-}
-
-source "$ZSH_MODULE_DIR/30-tools.zsh" || {
-    unset DOTFILES_ZSH_LOADING ZSH_MODULE_DIR
-    return 1
-}
-
-source "$ZSH_MODULE_DIR/40-aliases.zsh" || {
-    unset DOTFILES_ZSH_LOADING ZSH_MODULE_DIR
-    return 1
-}
-
-source "$ZSH_MODULE_DIR/50-local.zsh" || {
-    unset DOTFILES_ZSH_LOADING ZSH_MODULE_DIR
-    return 1
-}
-
-source "$ZSH_MODULE_DIR/90-plugins.zsh" || {
-    unset DOTFILES_ZSH_LOADING ZSH_MODULE_DIR
-    return 1
-}
-
+unset -f _dotfiles_load_modules
 unset DOTFILES_ZSH_LOADING ZSH_MODULE_DIR
 typeset -g DOTFILES_ZSH_LOADED=1
